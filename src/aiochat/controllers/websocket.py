@@ -31,6 +31,6 @@ class WebSocketController(BaseController):
                     'timestamp': datetime.now().isoformat()
                 })
 
-        cls._websockets.remove(ws)
+        self._websockets.remove(ws)
 
         return ws
