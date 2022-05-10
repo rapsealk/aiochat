@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import time
 from uuid import uuid4
 
@@ -8,6 +9,7 @@ from aiohttp import web
 
 from aiochat.controllers.base import BaseController
 
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_CHANNEL_ID = 'aiochat-channel'
 
 
@@ -16,7 +18,7 @@ class WebSocketController(BaseController):
         ws = web.WebSocketResponse()
         await ws.prepare(request)
 
-        redis = await aioredis.from_url('redis://localhost', encoding='utf-8', decode_responses=True)
+        redis = await aioredis.from_url(f'redis://{REDIS_HOST}', encoding='utf-8', decode_responses=True)
 
         async def consume_message(channel: aioredis.client.PubSub, websocket: web.WebSocketResponse):
             await channel.subscribe(REDIS_CHANNEL_ID)
@@ -39,7 +41,8 @@ class WebSocketController(BaseController):
             await redis.publish(REDIS_CHANNEL_ID, json.dumps({
                 'uuid': uuid,
                 'message': json.loads(message.data).get('message', ''),
-                'timestamp': time.time() * 1000
+                # 'timestamp': time.time() * 1000
+                'timestamp': os.getpid()
             }))
 
         await future
