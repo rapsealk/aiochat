@@ -3,9 +3,9 @@ window.addEventListener('DOMContentLoaded', function(e) {
     const button = document.querySelector('#button');
     const chatBox = document.querySelector('#chatbox');
 
-    function generateChatBubbleItem({ uuid, message, timestamp }) {
+    function generateChatBubbleItem({ uuid, message, timestamp, pid }) {
         const li = document.createElement('li');
-        li.innerHTML = `[${timestamp}] <b>${uuid}</b>: ${message}`;
+        li.innerHTML = `[${pid}] <b>${uuid}</b>: ${message}<div style="display: inline; color: gray; font-size: 8pt; margin-left: 16px; text-align: right;">${new Date(timestamp).toLocaleString()}</div>`;
         return li;
     }
 
