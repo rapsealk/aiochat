@@ -41,8 +41,8 @@ class WebSocketController(BaseController):
             await redis.publish(REDIS_CHANNEL_ID, json.dumps({
                 'uuid': uuid,
                 'message': json.loads(message.data).get('message', ''),
-                # 'timestamp': time.time() * 1000
-                'timestamp': os.getpid()
+                'timestamp': time.time() * 1000,
+                'pid': os.getpid()
             }))
 
         await future
