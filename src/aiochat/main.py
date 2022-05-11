@@ -11,8 +11,8 @@ STATIC_FILE_PATH = os.path.abspath(
 
 app = web.Application()
 app.add_routes([
-    web.get('/', ChatController(static_file_path=STATIC_FILE_PATH).handle),
-    web.get('/ws', WebSocketController().handle),
+    web.get('/', ChatController(static_file_path=STATIC_FILE_PATH)),
+    web.get('/ws', WebSocketController()),
     web.static('/static', STATIC_FILE_PATH)
 ])
 

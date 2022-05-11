@@ -30,7 +30,7 @@ class Message:
 
 
 class WebSocketController(BaseController):
-    async def handle(self, request: web.Request):
+    async def __call__(self, request: web.Request):
         ws = web.WebSocketResponse()
         await ws.prepare(request)
 
