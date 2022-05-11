@@ -36,20 +36,7 @@ class WebSocketController(BaseController):
 
         redis = await aioredis.from_url(f'redis://{REDIS_HOST}', encoding='utf-8', decode_responses=True)
 
-        async def consume_message(channel: aioredis.client.PubSub, websocket: web.WebSocketResponse):
-            await channel.subscribe(REDIS_CHANNEL_ID)
-            while not websocket.closed:
-                try:
-                    if message := await channel.get_message(ignore_subscribe_messages=True, timeout=1.0):
-                        await websocket.send_json(json.loads(message.get('data', '{}')))
-                    await asyncio.sleep(0.01)
-                except asyncio.TimeoutError:
-                    pass
-                except ConnectionResetError:
-                    break
-            await channel.unsubscribe(REDIS_CHANNEL_ID)
-
-        future = asyncio.create_task(consume_message(redis.pubsub(), ws))
+        future = asyncio.create_task(self._consume_message(redis.pubsub(), ws))
 
         uuid = str(uuid4())
 
@@ -79,3 +66,16 @@ class WebSocketController(BaseController):
         await redis.close()
 
         return ws
+
+    async def _consume_message(self, channel: aioredis.client.PubSub, websocket: web.WebSocketResponse):
+        await channel.subscribe(REDIS_CHANNEL_ID)
+        while not websocket.closed:
+            try:
+                if message := await channel.get_message(ignore_subscribe_messages=True, timeout=1.0):
+                    await websocket.send_json(json.loads(message.get('data', '{}')))
+                await asyncio.sleep(0.01)
+            except asyncio.TimeoutError:
+                pass
+            except ConnectionResetError:
+                break
+        await channel.unsubscribe(REDIS_CHANNEL_ID)
