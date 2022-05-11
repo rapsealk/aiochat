@@ -69,7 +69,8 @@ class WebSocketController(BaseController):
                 Message(tag='message', uuid=uuid, message=json.loads(message.data).get('message', '')).json()
             )
 
-        await future
+        if not future.cancelled():
+            future.cancel()
 
         await redis.publish(
             REDIS_CHANNEL_ID,
