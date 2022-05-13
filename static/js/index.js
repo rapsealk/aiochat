@@ -19,7 +19,14 @@ window.addEventListener('DOMContentLoaded', function(e) {
         return li;
     }
 
+    function getCookie(key) {
+        return document.cookie.split(';')
+            .find((cookie) => cookie.startsWith(key))
+            ?.split('=')[1];
+    }
+
     const ws = new WebSocket(`ws://${window.location.host}/ws`);
+    ws.onopen = () => ws.send(getCookie('aiochat-uuid'));
     ws.onmessage = function(e) {
         const data = JSON.parse(e.data);
         if (data.tag === 'message') {
