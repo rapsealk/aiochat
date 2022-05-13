@@ -31,11 +31,15 @@ class WebSocketController(BaseController):
         ws = web.WebSocketResponse()
         await ws.prepare(request)
 
-        redis = await aioredis.from_url(f'redis://{REDIS_HOST}', encoding='utf-8', decode_responses=True)
-
-        future = asyncio.create_task(self._consume_message(redis.pubsub(), ws))
-
         uuid = await ws.receive_str(timeout=None)
+
+        redis = await aioredis.from_url(f'redis://{REDIS_HOST}', encoding='utf-8', decode_responses=True)
+        await redis.publish(
+            uuid,
+            Message(tag='command', uuid=uuid, message='close').json()
+        )
+
+        future = asyncio.create_task(self._consume_message(redis.pubsub(), ws, uuid))
 
         await redis.publish(
             REDIS_CHANNEL_ID,
@@ -64,11 +68,15 @@ class WebSocketController(BaseController):
 
         return ws
 
-    async def _consume_message(self, channel: aioredis.client.PubSub, websocket: web.WebSocketResponse):
-        await channel.subscribe(REDIS_CHANNEL_ID)
+    async def _consume_message(self, channel: aioredis.client.PubSub, websocket: web.WebSocketResponse, uuid: str):
+        await channel.subscribe(REDIS_CHANNEL_ID, uuid)
         while not websocket.closed:
             try:
                 if message := await channel.get_message(ignore_subscribe_messages=True, timeout=1.0):
+                    if msg := json.loads(message.get('data', {})):
+                        if msg.get('tag') == 'command' and msg.get('message') == 'close':
+                            await websocket.close()
+                            break
                     await websocket.send_json(json.loads(message.get('data', '{}')))
                 await asyncio.sleep(0.01)
             except asyncio.TimeoutError:

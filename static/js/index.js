@@ -27,6 +27,11 @@ window.addEventListener('DOMContentLoaded', function(e) {
 
     const ws = new WebSocket(`ws://${window.location.host}/ws`);
     ws.onopen = () => ws.send(getCookie('aiochat-uuid'));
+    ws.onclose = () => {
+        alert('Disconnected from server!');
+        messageInput.disabled = true;
+        button.disabled = true;
+    };
     ws.onmessage = function(e) {
         const data = JSON.parse(e.data);
         if (data.tag === 'message') {
