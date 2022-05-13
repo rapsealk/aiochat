@@ -18,4 +18,4 @@ RUN pip install -e .
 
 EXPOSE $PORT
 
-ENTRYPOINT gunicorn src.aiochat.main:app
+ENTRYPOINT gunicorn src.aiochat.main:create_app
