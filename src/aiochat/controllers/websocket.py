@@ -2,15 +2,12 @@ import asyncio
 import json
 import os
 import time
-from uuid import uuid4
 
 import aioredis
 from aiohttp import web
 
+from aiochat.common import REDIS_HOST, REDIS_CHANNEL_ID
 from aiochat.controllers.base import BaseController
-
-REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
-REDIS_CHANNEL_ID = 'aiochat-channel'
 
 
 class Message:
@@ -38,7 +35,7 @@ class WebSocketController(BaseController):
 
         future = asyncio.create_task(self._consume_message(redis.pubsub(), ws))
 
-        uuid = str(uuid4())
+        uuid = await ws.receive_str(timeout=None)
 
         await redis.publish(
             REDIS_CHANNEL_ID,

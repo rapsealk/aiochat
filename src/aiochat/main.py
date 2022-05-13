@@ -1,26 +1,34 @@
 import os
 
-import aioredis
+# import aioredis
+import jinja2
 from aiohttp import web
-from aiohttp_session import setup as setup_aiohttp_session
-from aiohttp_session.redis_storage import RedisStorage
+from aiohttp_jinja2 import setup as setup_aiohttp_jinja2
+# from aiohttp_session import setup as setup_aiohttp_session
+# from aiohttp_session.redis_storage import RedisStorage
 
+# from aiochat.common import REDIS_HOST
 from aiochat.controllers import ChatController, WebSocketController
 
 STATIC_FILE_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'static')
+)
+JINJA_TEMPLATE_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..', 'templates')
 )
 
 
 async def create_app() -> web.Application:
     app = web.Application()
 
-    redis_pool = await aioredis.from_url('redis://localhost', encoding='utf-8', decode_responses=True)
-    storage = RedisStorage(redis_pool=redis_pool)
-    setup_aiohttp_session(app, storage=storage)
+    setup_aiohttp_jinja2(app, loader=jinja2.FileSystemLoader(JINJA_TEMPLATE_PATH))
+
+    # redis_pool = await aioredis.from_url(f'redis://{REDIS_HOST}', encoding='utf-8', decode_responses=True)
+    # storage = RedisStorage(redis_pool=redis_pool)
+    # setup_aiohttp_session(app, storage=storage)
 
     app.add_routes([
-        web.get('/', ChatController(static_file_path=STATIC_FILE_PATH)),
+        web.get('/', ChatController()),
         web.get('/ws', WebSocketController()),
         web.static('/static', STATIC_FILE_PATH)
     ])
