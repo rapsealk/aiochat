@@ -34,6 +34,7 @@ window.addEventListener('DOMContentLoaded', function(e) {
         } else if (data.tag === 'event') {
             chatBox.appendChild(genNotificationBubble(data));
         }
+        chatBox.parentNode.scrollTo(0, chatBox.parentNode.scrollHeight);
     };
 
     button.addEventListener('click', function(e) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title>aiochat</title>
 
@@ -7,9 +7,11 @@
     </head>
     <body>
         <h1>Hello, aiochat!</h1>
-        <input type="text" id="message">
+        <input type="text" id="message" aria-label="input">
         <button type="button" id="button">Send</button>
-        <table id="chatbox"></table>
+        <div style="margin-top: 32px; max-height: 80%; overflow-y: scroll;">
+            <table id="chatbox"></table>            
+        </div>
 
         <script type="text/javascript" src="/static/js/index.js"></script>
     </body>
