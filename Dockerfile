@@ -9,6 +9,7 @@ COPY ./requirements.txt /app/requirements.txt
 COPY ./requirements-dev.txt /app/requirements-dev.txt
 COPY ./src /app/src
 COPY ./static /app/static
+COPY ./templates /app/templates
 COPY ./setup.py /app/setup.py
 COPY ./gunicorn.conf.py /app/gunicorn.conf.py
 
