@@ -4,7 +4,7 @@ import jinja2
 from aiohttp import web
 from aiohttp_jinja2 import setup as setup_aiohttp_jinja2
 
-from aiochat.controllers import ChatController, WebSocketController
+from aiochat.controllers import MainController, JoinController, WebSocketController
 
 STATIC_FILE_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'static')
@@ -20,8 +20,10 @@ async def create_app() -> web.Application:
     setup_aiohttp_jinja2(app, loader=jinja2.FileSystemLoader(JINJA_TEMPLATE_PATH))
 
     app.add_routes([
-        web.get('/', ChatController()),
+        web.get('/', MainController()),
         web.get('/ws', WebSocketController()),
+        web.get('/join', JoinController()),
+        web.post('/join', JoinController()),
         web.static('/static', STATIC_FILE_PATH)
     ])
     return app

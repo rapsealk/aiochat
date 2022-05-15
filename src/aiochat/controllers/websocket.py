@@ -41,9 +41,11 @@ class WebSocketController(BaseController):
 
         future = asyncio.create_task(self._consume_message(redis.pubsub(), ws, uuid))
 
+        username = await redis.get(uuid)
+
         await redis.publish(
             REDIS_CHANNEL_ID,
-            Message(tag='event', uuid=uuid, message=f'{uuid} has joined.').json()
+            Message(tag='event', uuid=username, message=f'{username} has joined.').json()
         )
 
         async for message in ws:
@@ -54,7 +56,7 @@ class WebSocketController(BaseController):
                 break
             await redis.publish(
                 REDIS_CHANNEL_ID,
-                Message(tag='message', uuid=uuid, message=json.loads(message.data).get('message', '')).json()
+                Message(tag='message', uuid=username, message=json.loads(message.data).get('message', '')).json()
             )
 
         if not future.cancelled():
@@ -62,7 +64,7 @@ class WebSocketController(BaseController):
 
         await redis.publish(
             REDIS_CHANNEL_ID,
-            Message(tag='event', uuid=uuid, message=f'{uuid} has left.').json()
+            Message(tag='event', uuid=uuid, message=f'{username} has left.').json()
         )
         await redis.close()
 
